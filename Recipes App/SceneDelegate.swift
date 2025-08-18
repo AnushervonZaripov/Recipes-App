@@ -18,14 +18,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
           guard let windowScene = (scene as? UIWindowScene) else { return }
 
           // Создаём стартовый контроллер
-          let rootViewController = ViewController()
-          let navigationController = UINavigationController(rootViewController: rootViewController)
-
-          // Настраиваем окно
-          let window = UIWindow(windowScene: windowScene)
-          window.rootViewController = navigationController
-          self.window = window
-          window.makeKeyAndVisible()
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = RecipesTabBarController()
+        self.window = window
+        window.makeKeyAndVisible()
       }
 
     func sceneDidDisconnect(_ scene: UIScene) {
