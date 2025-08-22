@@ -23,19 +23,16 @@ class OnboardingSlideViewController: UIViewController {
         font: .poppinsRegular(size: 14),
         size: CGSize(width: 60, height: 20)
     )
-
     private let pageControl = UIPageControl()
     private let stackView = UIStackView()
 
-    private var slide: OnboardingSlide?
-    private var isLastSlide = false
-    private var currentIndex = 0
-    private var totalSlides = 0
+    private var presenter: OnboardingPresenterProtocol?
+    private var slideIndex: Int = 0
+    private var totalSlides: Int = 0
 
-    func configure(with slide: OnboardingSlide, isLast: Bool = false, index: Int, total: Int) {
-        self.slide = slide
-        self.isLastSlide = isLast
-        self.currentIndex = index
+    func configure(presenter: OnboardingPresenterProtocol, index: Int, total: Int) {
+        self.presenter = presenter
+        self.slideIndex = index
         self.totalSlides = total
     }
 
@@ -44,20 +41,17 @@ class OnboardingSlideViewController: UIViewController {
         setupUI()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        continueButton.setTitle(isLastSlide ? "Start Cooking" : "Continue", for: .normal)
-    }
-
     private func setupUI() {
         view.backgroundColor = .black
 
+        // ImageView
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(imageView)
+
+        // Overlay
         overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         overlayView.translatesAutoresizingMaskIntoConstraints = false
-
-        view.addSubview(imageView)
         view.addSubview(overlayView)
 
         NSLayoutConstraint.activate([
@@ -72,9 +66,11 @@ class OnboardingSlideViewController: UIViewController {
             overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
+        // StackView
         stackView.axis = .vertical
         stackView.spacing = 24
-        stackView.alignment = .fill
+        stackView.distribution = .equalSpacing
+        stackView.alignment = .center
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
 
@@ -84,59 +80,74 @@ class OnboardingSlideViewController: UIViewController {
             stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40)
         ])
 
+        // Spacer
         let spacerView = UIView()
         spacerView.translatesAutoresizingMaskIntoConstraints = false
         spacerView.heightAnchor.constraint(equalToConstant: 160).isActive = true
         stackView.addArrangedSubview(spacerView)
 
+        // Title
         titleLabel.font = UIFont.poppinsBold(size: 40)
-        titleLabel.textColor = .white0
+        titleLabel.textColor = .white
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
         titleLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 60).isActive = true
         stackView.addArrangedSubview(titleLabel)
 
+        // PageControl
         pageControl.numberOfPages = totalSlides
-        pageControl.currentPage = currentIndex
-        pageControl.currentPageIndicatorTintColor = UIColor.systemPink
+        pageControl.currentPage = slideIndex
+        pageControl.currentPageIndicatorTintColor = .systemPink
         pageControl.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.5)
         pageControl.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
         pageControl.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubview(pageControl)
         pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        stackView.addArrangedSubview(pageControl)
 
+        // Continue Button
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
         stackView.addArrangedSubview(continueButton)
 
+        // Skip Button
         skipButton.backgroundColor = .clear
         skipButton.addTarget(self, action: #selector(skipTapped), for: .touchUpInside)
         stackView.addArrangedSubview(skipButton)
 
-        if let slide = slide {
+        // Apply content
+        if let presenter = presenter {
+            let slide = presenter.getSlide(at: slideIndex)
             titleLabel.text = slide.title
             imageView.image = UIImage(named: slide.imageName)
+            continueButton.setTitle(presenter.isLastSlide(index: slideIndex) ? "Start Cooking" : "Continue", for: .normal)
         }
     }
 
     @objc private func continueTapped() {
-        if isLastSlide {
-            UserDefaults.standard.hasSeenOnboarding = true
-            let homeVC = RecipesTabBarController()
-            homeVC.modalPresentationStyle = .fullScreen
-            present(homeVC, animated: true)
+        guard let presenter = presenter else { return }
+
+        if presenter.isLastSlide(index: slideIndex) {
+            presenter.markOnboardingSeen()
+            presentHome()
         } else {
-            if let pageVC = self.parent as? UIPageViewController,
-               let currentVC = pageVC.viewControllers?.first,
-               let nextVC = pageVC.dataSource?.pageViewController(pageVC, viewControllerAfter: currentVC) {
-                pageVC.setViewControllers([nextVC], direction: .forward, animated: true)
-            }
+            goToNextSlide()
         }
     }
 
     @objc private func skipTapped() {
-        UserDefaults.standard.hasSeenOnboarding = true
+        presenter?.markOnboardingSeen()
+        presentHome()
+    }
+
+    private func presentHome() {
         let homeVC = RecipesTabBarController()
         homeVC.modalPresentationStyle = .fullScreen
         present(homeVC, animated: true)
+    }
+
+    private func goToNextSlide() {
+        guard let pageVC = self.parent as? UIPageViewController,
+              let currentVC = pageVC.viewControllers?.first,
+              let nextVC = pageVC.dataSource?.pageViewController(pageVC, viewControllerAfter: currentVC) else { return }
+        pageVC.setViewControllers([nextVC], direction: .forward, animated: true)
     }
 }

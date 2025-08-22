@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        UserDefaults.standard.set(false, forKey: "hasSeenOnboarding") // Временно для принудительного запуска онбординга
+        //UserDefaults.standard.set(false, forKey: "hasSeenOnboarding") // Временно для принудительного запуска онбординга
 
         window = UIWindow(windowScene: windowScene)
         

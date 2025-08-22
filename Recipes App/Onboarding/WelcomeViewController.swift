@@ -9,6 +9,7 @@ import UIKit
 
 class WelcomeViewController: UIViewController {
 
+    private let presenter = WelcomePresenter()
     private let backgroundImageView = UIImageView()
     private let gradientView = UIView()
     private let titleLabel = UILabel()
@@ -19,7 +20,7 @@ class WelcomeViewController: UIViewController {
            size: CGSize(width: 240, height: 52),
            cornerRadius: 12
     )
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -27,19 +28,19 @@ class WelcomeViewController: UIViewController {
     }
 
     override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        applyGradient()
-    }
+           super.viewDidLayoutSubviews()
+           applyGradient()
+       }
 
     override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+            super.viewDidAppear(animated)
 
-        if UserDefaults.standard.hasSeenOnboarding {
-            let homeVC = HomeViewController()
-            homeVC.modalPresentationStyle = .fullScreen
-            present(homeVC, animated: false)
+            if !presenter.shouldShowOnboarding {
+                let homeVC = HomeViewController()
+                homeVC.modalPresentationStyle = .fullScreen
+                present(homeVC, animated: false)
+            }
         }
-    }
 
     private func setupUI() {
         view.backgroundColor = .white
@@ -85,10 +86,8 @@ class WelcomeViewController: UIViewController {
             gradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             gradientView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.9),
 
-            getStartedButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
             getStartedButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            getStartedButton.widthAnchor.constraint(equalToConstant: 200),
-            getStartedButton.heightAnchor.constraint(equalToConstant: 44),
+               getStartedButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
 
             subtitleLabel.bottomAnchor.constraint(equalTo: getStartedButton.topAnchor, constant: -24),
             subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
@@ -128,8 +127,8 @@ class WelcomeViewController: UIViewController {
     }
 
     @objc private func startOnboarding() {
-        let onboardingVC = OnboardingPageViewController()
-        onboardingVC.modalPresentationStyle = .fullScreen
-        present(onboardingVC, animated: true)
-    }
+           let onboardingVC = OnboardingPageViewController()
+           onboardingVC.modalPresentationStyle = .fullScreen
+           present(onboardingVC, animated: true)
+       }
 }

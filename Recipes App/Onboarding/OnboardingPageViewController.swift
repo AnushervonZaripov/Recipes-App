@@ -9,7 +9,7 @@ import UIKit
 
 class OnboardingPageViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
 
-    private var slides: [OnboardingSlide] = []
+    private let presenter = OnboardingPresenter()
     private var pages: [OnboardingSlideViewController] = []
 
     init() {
@@ -24,29 +24,18 @@ class OnboardingPageViewController: UIPageViewController, UIPageViewControllerDa
         super.viewDidLoad()
         dataSource = self
         delegate = self
-        setupSlides()
         setupPages()
         setViewControllers([pages.first!], direction: .forward, animated: true)
     }
 
-    private func setupSlides() {
-        slides = [
-            OnboardingSlide(title: "Recipes from\nall over the \nWorld", imageName: "onboarding2"),
-            OnboardingSlide(title: "Recipes with \neach and every \ndetail", imageName: "onboarding3"),
-            OnboardingSlide(title: "Cook it now or \nsave it for later", imageName: "onboarding4")
-        ]
-    }
-
     private func setupPages() {
-        pages = slides.enumerated().map { index, slide in
+        pages = presenter.slides.enumerated().map { index, _ in
             let vc = OnboardingSlideViewController()
-            let isLast = index == slides.count - 1
-            vc.configure(with: slide, isLast: isLast, index: index, total: slides.count)
+            vc.configure(presenter: presenter, index: index, total: presenter.slides.count)
             return vc
+            
         }
     }
-
-    // MARK: - Page Navigation
 
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let index = pages.firstIndex(of: viewController as! OnboardingSlideViewController), index > 0 else { return nil }
