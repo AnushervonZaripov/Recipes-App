@@ -7,6 +7,11 @@
 
 import UIKit
 
+protocol OnboardingSlideDelegate: AnyObject {
+    func didTapContinue(from index: Int)
+    func didTapSkip()
+}
+
 class OnboardingSlideViewController: UIViewController {
 
     private let imageView = UIImageView()
@@ -29,6 +34,8 @@ class OnboardingSlideViewController: UIViewController {
     private var presenter: OnboardingPresenterProtocol?
     private var slideIndex: Int = 0
     private var totalSlides: Int = 0
+
+    weak var delegate: OnboardingSlideDelegate?
 
     func configure(presenter: OnboardingPresenterProtocol, index: Int, total: Int) {
         self.presenter = presenter
@@ -123,31 +130,14 @@ class OnboardingSlideViewController: UIViewController {
     }
 
     @objc private func continueTapped() {
-        guard let presenter = presenter else { return }
-
-        if presenter.isLastSlide(index: slideIndex) {
-            presenter.markOnboardingSeen()
-            presentHome()
-        } else {
-            goToNextSlide()
-        }
+        delegate?.didTapContinue(from: slideIndex)
     }
 
     @objc private func skipTapped() {
-        presenter?.markOnboardingSeen()
-        presentHome()
+        delegate?.didTapSkip()
     }
 
-    private func presentHome() {
-        let homeVC = RecipesTabBarController()
-        homeVC.modalPresentationStyle = .fullScreen
-        present(homeVC, animated: true)
-    }
-
-    private func goToNextSlide() {
-        guard let pageVC = self.parent as? UIPageViewController,
-              let currentVC = pageVC.viewControllers?.first,
-              let nextVC = pageVC.dataSource?.pageViewController(pageVC, viewControllerAfter: currentVC) else { return }
-        pageVC.setViewControllers([nextVC], direction: .forward, animated: true)
+    func updatePageControl(to index: Int) {
+        pageControl.currentPage = index
     }
 }
