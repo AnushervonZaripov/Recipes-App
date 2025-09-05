@@ -109,7 +109,7 @@ class HomeViewController: UIViewController {
             case .trending:
                 let item = NSCollectionLayoutItem(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(254),
+                        widthDimension: .fractionalWidth(1.0),
                         heightDimension: .absolute(280)
                     )
                 )
@@ -117,7 +117,7 @@ class HomeViewController: UIViewController {
                 
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(254),
+                        widthDimension: .fractionalWidth(0.746),
                         heightDimension: .absolute(280)
                     ),
                     subitems: [item]
@@ -133,7 +133,7 @@ class HomeViewController: UIViewController {
             case .categories:
                 let item = NSCollectionLayoutItem(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(120),
+                        widthDimension: .fractionalWidth(1.0),
                         heightDimension: .absolute(36)
                     )
                 )
@@ -141,7 +141,7 @@ class HomeViewController: UIViewController {
                 
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(120),
+                        widthDimension: .fractionalWidth(0.32),
                         heightDimension: .absolute(36)
                     ),
                     subitems: [item]
@@ -156,7 +156,7 @@ class HomeViewController: UIViewController {
             case .detailedCategory:
                 let item = NSCollectionLayoutItem(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(150),
+                        widthDimension: .fractionalWidth(1.0),
                         heightDimension: .absolute(231)
                     )
                 )
@@ -164,7 +164,7 @@ class HomeViewController: UIViewController {
                 
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(150),
+                        widthDimension: .fractionalWidth(0.4),
                         heightDimension: .absolute(231)
                     ),
                     subitems: [item]
@@ -179,7 +179,7 @@ class HomeViewController: UIViewController {
             case .recent:
                 let item = NSCollectionLayoutItem(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(124),
+                        widthDimension: .fractionalWidth(1.0),
                         heightDimension: .absolute(190)
                     )
                 )
@@ -187,7 +187,7 @@ class HomeViewController: UIViewController {
                 
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .absolute(124),
+                        widthDimension: .fractionalWidth(0.33),
                         heightDimension: .absolute(190)
                     ),
                     subitems: [item]
