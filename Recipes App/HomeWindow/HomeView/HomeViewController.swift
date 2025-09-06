@@ -51,11 +51,12 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        
         setupSubviews()
         setupConstraints()
         setupCollectionView()
     }
-    
+
     private func setupSubviews() {
         view.addSubview(mainLabel)
         view.addSubview(searchTextField)

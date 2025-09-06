@@ -6,22 +6,21 @@
 //
 
 enum Endpoint {
-    case getTrendingRecipes
-    case getRecentRecipes
-    case complexSearch(sort: String?, number: Int, offset: Int, minLikes: Int)
-    case search(query: String)
+    case trendingRecipes(number: Int, offset: Int)
+    case popularRecipes(number: Int, offset: Int, cuisine: String?)
+    case recentRecipes(number: Int, offset: Int)
+    case search(query: String, number: Int, offset: Int)
+    case recipeInformation(id: Int, includeNutrition: Bool)
     
     var path: String {
         switch self {
-        case .getTrendingRecipes:
-            ""
-        case .getRecentRecipes:
-            ""
-        case .complexSearch(sort: let sort, number: let number, offset: let offset, minLikes: let minLikes):
-            ""
-        case .search(query: let query):
-            ""
+        case .trendingRecipes,
+                .popularRecipes,
+                .recentRecipes,
+                .search:
+            return "/recipes/complexSearch"
+        case .recipeInformation(let id, _):
+            return "/recipes/\(id)/information"
         }
     }
-    
 }

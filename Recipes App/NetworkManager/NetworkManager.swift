@@ -35,41 +35,59 @@ struct NetworkManager {
         parameters["apiKey"] = API.apiKey
         
         switch endpoint {
-        case .search(query: let request):
-            parameters ["number"] = "10"
-            parameters ["query"] = "\(request)"
-        case .getTrendingRecipes:
-            ""
-        case .getRecentRecipes:
-            ""
-        case .complexSearch(sort: let sort, number: let number, offset: let offset, minLikes: let minLikes):
-            ""
-        case .search(query: let query):
-            ""
+        case .search(let query, let number, let offset):
+            parameters["query"] = query
+            parameters["number"] = "\(number)"
+            parameters["offset"] = "\(offset)"
+            parameters["addRecipeInformation"] = "true"
+            
+        case .trendingRecipes(let number, let offset):
+            parameters["sort"] = "popularity"
+            parameters["number"] = "\(number)"
+            parameters["offset"] = "\(offset)"
+            parameters["addRecipeInformation"] = "true"
+            
+        case .recentRecipes(let number, let offset):
+            parameters["sort"] = "random"
+            parameters["number"] = "\(number)"
+            parameters["offset"] = "\(offset)"
+            parameters["addRecipeInformation"] = "true"
+            
+        case .popularRecipes(let number, let offset, let cuisine):
+            parameters["sort"] = "popularity"
+            parameters["number"] = "\(number)"
+            parameters["offset"] = "\(offset)"
+            parameters["minLikes"] = "10"
+            if let cuisine = cuisine {
+                parameters["cuisine"] = cuisine
+            }
+            parameters["addRecipeInformation"] = "true"
+            
+        case .recipeInformation(_, let includeNutrition):
+            parameters["includeNutrition"] = includeNutrition ? "true" : "false"
         }
         
         return parameters
     }
-    
+
     private func makeTask<T: Codable>(for url: URL, apiKey: String, using session: URLSession = .shared, completion: @escaping(Result<T,NetworkError>)-> Void) {
         var request = URLRequest(url: url)
         request.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
         
         session.dataTask(with: request) { data, response, error in
             
-            if let error = error {
+            if error != nil {
                 completion(.failure(.invalidURL))
             }
             
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
+            guard response is HTTPURLResponse else {
                 let error = NSError(domain: "No HTTPURLResponse", code: 0, userInfo: nil)
                 completion(.failure(.serverError(statusCode: error.code)))
                 return
             }
             
             guard let data = data else {
-                let error = NSError(domain: "No Data", code: 0, userInfo: nil)
+                _ = NSError(domain: "No Data", code: 0, userInfo: nil)
                 completion(.failure(.noData))
                 return
             }
