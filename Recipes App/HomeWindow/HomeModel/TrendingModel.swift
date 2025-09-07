@@ -6,11 +6,13 @@
 //
 
 struct TrendingModel: Codable {
-    var results: [TrendingResult]
+    var results: [TrendingResult]?
 }
 
 struct TrendingResult: Codable {
-    var id: Int
-    var title: String
-    var image: String
+    var id: Int?
+    var title: String?
+    var image: String?
+    var imageType: String?
+    var author: String?
 }

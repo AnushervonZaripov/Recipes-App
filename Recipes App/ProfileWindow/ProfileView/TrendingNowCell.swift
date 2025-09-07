@@ -16,7 +16,7 @@ class TrendingNowCell: UITableViewCell {
         let layer = CAGradientLayer()
         layer.colors = [
             UIColor.clear.cgColor,
-            UIColor.black.withAlphaComponent(0.6).cgColor, // тёмный низ
+            UIColor.black.withAlphaComponent(0.6).cgColor, 
         ]
         layer.locations = [0.0, 1.0]
         return layer

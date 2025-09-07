@@ -7,7 +7,7 @@
 
 enum Endpoint {
     case trendingRecipes(number: Int, offset: Int)
-    case popularRecipes(number: Int, offset: Int, cuisine: String?)
+    case popularRecipes(number: Int, offset: Int, cuisine: String?, type: String?)
     case recentRecipes(number: Int, offset: Int)
     case search(query: String, number: Int, offset: Int)
     case recipeInformation(id: Int, includeNutrition: Bool)

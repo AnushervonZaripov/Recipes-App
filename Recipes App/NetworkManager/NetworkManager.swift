@@ -7,6 +7,23 @@
 
 import Foundation
 
+enum RecipeCategory: String, CaseIterable {
+    case mainCourse = "main course"
+    case sideDish = "side dish"
+    case dessert
+    case appetizer
+    case salad
+    case bread
+    case breakfast
+    case soup
+    case beverage
+    case sauce
+    case marinade
+    case fingerfood
+    case snack
+    case drink
+}
+
 enum NetworkError: Error {
     case invalidURL
     case decodingError
@@ -53,7 +70,7 @@ struct NetworkManager {
             parameters["offset"] = "\(offset)"
             parameters["addRecipeInformation"] = "true"
             
-        case .popularRecipes(let number, let offset, let cuisine):
+        case .popularRecipes(let number, let offset, let cuisine, let type):
             parameters["sort"] = "popularity"
             parameters["number"] = "\(number)"
             parameters["offset"] = "\(offset)"
@@ -61,7 +78,11 @@ struct NetworkManager {
             if let cuisine = cuisine {
                 parameters["cuisine"] = cuisine
             }
+            if let type = type {
+                parameters["type"] = type
+            }
             parameters["addRecipeInformation"] = "true"
+
             
         case .recipeInformation(_, let includeNutrition):
             parameters["includeNutrition"] = includeNutrition ? "true" : "false"
@@ -80,12 +101,15 @@ struct NetworkManager {
                 completion(.failure(.invalidURL))
             }
             
-            guard response is HTTPURLResponse else {
-                let error = NSError(domain: "No HTTPURLResponse", code: 0, userInfo: nil)
-                completion(.failure(.serverError(statusCode: error.code)))
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(.serverError(statusCode: 0)))
                 return
             }
-            
+
+            guard (200..<300).contains(httpResponse.statusCode) else {
+                completion(.failure(.serverError(statusCode: httpResponse.statusCode)))
+                return
+            }
             guard let data = data else {
                 _ = NSError(domain: "No Data", code: 0, userInfo: nil)
                 completion(.failure(.noData))
@@ -100,4 +124,25 @@ struct NetworkManager {
             }
         }.resume()
     }
+    
+    func getTrendingRecipes(completion: @escaping(Result<TrendingModel,NetworkError>) -> Void) {
+    
+        guard let url = createURL(for: .trendingRecipes(number: 10, offset: 0)) else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        makeTask(for: url, apiKey: Token.fifth, completion: completion)
+    }
+    
+    func getPopularRecipes(type: String, completion: @escaping(Result<PopularModel,NetworkError>) -> Void) {
+        
+        guard let url = createURL(for: .popularRecipes(number: 10, offset: 0, cuisine: "italian", type: type.lowercased())) else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        
+        print(url)
+        makeTask(for: url, apiKey: Token.fifth, completion: completion)
+    }
+    
 }

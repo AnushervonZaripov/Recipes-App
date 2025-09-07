@@ -9,8 +9,6 @@
 
 import Foundation
 
-//описание конкретного сервиса
-
 struct API {
     static let scheme = "https"
     static let host = "api.spoonacular.com"
@@ -38,5 +36,3 @@ struct Token {
     static let seventeen = "f53c3c540feb41b08450248060e8cd77"
 }
 
-
-// другой сервис

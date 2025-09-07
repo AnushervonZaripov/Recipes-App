@@ -41,10 +41,28 @@ class HomeViewController: UIViewController {
        return textField
     }()
     
-    private var trendingRecipes = ["How to shawrama at home", "How at home", "How to shawrama at home", "How to shawrama at home"]
-    private var popularCategories = ["Salad", "Breakfast", "Appetizer", "Lunch"]
-    private var detailedCategories = ["Chicken and Vegetable wrap", "Chicken and Vegetable wrap", "Chicken and Vegetable wrap", "Chicken and Vegetable wrap"]
+
+    private var popularCategories = [
+        "Main Course",
+        "Side Dish",
+        "Dessert",
+        "Appetizer",
+        "Salad",
+        "Bread",
+        "Breakfast",
+        "Soup",
+        "Beverage",
+        "Sauce",
+        "Marinade",
+        "Fingerfood",
+        "Snack",
+        "Drink"
+    ]
+
     private var recentRecipes = ["Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe"," Kelewele Ghanian Recipe"]
+    
+    private var trendingRecipes: [TrendingResult] = []
+    private var popularRecipes: [PopularResult] = []
     
     private var collectionView: UICollectionView!
     
@@ -55,6 +73,10 @@ class HomeViewController: UIViewController {
         setupSubviews()
         setupConstraints()
         setupCollectionView()
+        getTrendingRecipes()
+        if let firstCategory = popularCategories.first {
+               fetchRecipes(for: firstCategory)
+           }
     }
 
     private func setupSubviews() {
@@ -111,7 +133,7 @@ class HomeViewController: UIViewController {
                 let item = NSCollectionLayoutItem(
                     layoutSize: NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .absolute(280)
+                        heightDimension:  .estimated(280)
                     )
                 )
                 item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
@@ -119,7 +141,7 @@ class HomeViewController: UIViewController {
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(
                         widthDimension: .fractionalWidth(0.746),
-                        heightDimension: .absolute(280)
+                        heightDimension: .estimated(280)
                     ),
                     subitems: [item]
                 )
@@ -228,7 +250,7 @@ extension HomeViewController: UICollectionViewDataSource {
         case .categories:
             return popularCategories.count
         case .detailedCategory:
-            return detailedCategories.count
+            return popularRecipes.count
         case .recent:
             return recentRecipes.count
         }
@@ -237,17 +259,34 @@ extension HomeViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch Section(rawValue: indexPath.section)! {
         case .trending:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrendingCell", for: indexPath) as! TrendingCell
-            cell.configure(title: trendingRecipes[indexPath.item])
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "TrendingCell",
+                for: indexPath
+            ) as! TrendingCell
+            let recipe = trendingRecipes[indexPath.item]
+            cell.configure(title: recipe.title ?? "", imageUrl: recipe.image, authName: "\("By " + (recipe.author ?? "Zeelecious Foodie"))")
             return cell
+
         case .categories:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
-            cell.configure(title: popularCategories[indexPath.item])
-            return cell
+                       cell.configure(title: popularCategories[indexPath.item])
+                       return cell
         case .detailedCategory:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DetailedCategoryCell", for: indexPath) as! DetailedCategoryCell
-            cell.configure(title: detailedCategories[indexPath.item])
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: "DetailedCategoryCell",
+                for: indexPath
+            ) as! DetailedCategoryCell
+            
+            // Проверяем, есть ли данные
+            if popularRecipes.indices.contains(indexPath.item) {
+                let recipe = popularRecipes[indexPath.item]
+                cell.configure(title: recipe.title ?? "", image: recipe.image, time: recipe.maxReadyTime ?? 5)
+            } else {
+                // Можно сбросить предыдущие данные или показать placeholder
+                cell.configure(title: "", image: nil, time: 0)
+            }
             return cell
+
         case .recent:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RecentCell", for: indexPath) as! RecentCell
             cell.configure(title: recentRecipes[indexPath.item])
@@ -294,14 +333,48 @@ extension HomeViewController: UICollectionViewDelegate {
                         cell.backgroundColor = .primary50
                         cell.layer.cornerRadius = 10
                     }
+            
+          
+            let selectedCategory = popularCategories[indexPath.item]
+                fetchRecipes(for: selectedCategory)
                     
             
         case .trending:
             print("Tapped trending: \(trendingRecipes[indexPath.item])")
         case .detailedCategory:
-            print("Tapped detailed category: \(detailedCategories[indexPath.item])")
+            print("Tapped detailed category: \(popularRecipes[indexPath.item])")
         case .recent:
             print("Tapped recent recipe: \(recentRecipes[indexPath.item])")
+        }
+    }
+    
+    func getTrendingRecipes() {
+        NetworkManager.shared.getTrendingRecipes { [weak self] result in
+            switch result {
+            case .success(let trending):
+                print("✅ Получено с бэка: \(trending.results?.count ?? 0) рецептов")
+                DispatchQueue.main.async {
+                    self?.trendingRecipes = trending.results ?? []
+                    self?.collectionView.reloadData()
+                }
+
+            case .failure(let error):
+                print("Error fetching trending recipes: \(error)")
+            }
+        }
+    }
+    
+    private func fetchRecipes(for category: String) {
+        NetworkManager.shared.getPopularRecipes(type: category) { [weak self] result in
+            switch result {
+            case .success(let data):
+                DispatchQueue.main.async {
+                    self?.popularRecipes = data.results
+                    self?.collectionView.reloadSections(IndexSet(integer: Section.detailedCategory.rawValue))
+                }
+            case .failure(let error):
+                print("❌ Error fetching recipes for \(category):", error)
+            }
         }
     }
 }

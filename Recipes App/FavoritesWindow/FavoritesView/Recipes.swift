@@ -1,9 +1,14 @@
 import UIKit
 
 
-struct Recipes {
+struct Recipes: Codable {
     let id: UUID
     let title: String
-    let image: UIImage
+    let imageName: String
+
+    var image: UIImage? {
+        UIImage(named: imageName)
+    }
 }
+
 

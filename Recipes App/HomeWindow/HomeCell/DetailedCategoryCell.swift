@@ -144,9 +144,15 @@ import UIKit
         
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
         
-        func configure(title: String) {
+        func configure(title: String, image: String?, time: Int) {
             titleLabel.text = title
-            foodImageView.backgroundColor = .systemGray3
+            if let imageUrl = image, let url = URL(string: imageUrl) {
+                foodImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
+            } else {
+                foodImageView.image = UIImage(systemName: "photo")
+            }
+            
+            cookingTimeLabel.text = "\(time) min"
             
         }
 

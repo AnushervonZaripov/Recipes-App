@@ -53,12 +53,6 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         }
         
         cell.recipeImageView.image = images[indexPath.row]
-//
-//        let recipe = recipes[indexPath.row]
-//        cell.configure(with: recipe) { [weak self] in
-//            self?.recipes.remove(at: indexPath.row)
-//            self?.tableView.deleteRows(at: [indexPath], with: .automatic)
-//        }
         
         return cell
     }

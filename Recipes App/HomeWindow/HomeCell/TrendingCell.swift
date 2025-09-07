@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class TrendingCell: UICollectionViewCell {
     
@@ -14,6 +15,8 @@ class TrendingCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.image = UIImage(named: "shawrama")
+        imageView.layer.cornerRadius = 12
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -23,6 +26,8 @@ class TrendingCell: UICollectionViewCell {
         label.textColor = .black
         label.numberOfLines = 2
         label.clipsToBounds = true
+        label.lineBreakMode = .byWordWrapping
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
     
@@ -121,12 +126,17 @@ class TrendingCell: UICollectionViewCell {
     private func setupTrendingConstraints() {
     
         NSLayoutConstraint.activate([
-            foodImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            foodImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            foodImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            foodImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            foodImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            foodImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+             
+             // высота = ширина * 0.75 (4:3)
+            foodImageView.heightAnchor.constraint(equalTo: foodImageView.widthAnchor, multiplier: 0.75),
+        
             
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            titleLabel.topAnchor.constraint(equalTo: foodImageView.bottomAnchor, constant: 8),
+//               titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+               titleLabel.topAnchor.constraint(equalTo: foodImageView.bottomAnchor, constant: 8),
             
             authorImageView.widthAnchor.constraint(equalToConstant: 32),
             authorImageView.heightAnchor.constraint(equalToConstant: 32),
@@ -160,10 +170,13 @@ class TrendingCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    func configure(title: String) {
+    func configure(title: String, imageUrl: String?, authName: String) {
         titleLabel.text = title
-        foodImageView.backgroundColor = .systemGray3
-        
+        authorNameLabel.text = authName
+        if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
+            foodImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
+        } else {
+            foodImageView.image = UIImage(systemName: "photo")
+        }
     }
-
 }

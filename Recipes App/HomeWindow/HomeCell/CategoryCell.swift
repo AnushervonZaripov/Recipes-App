@@ -31,5 +31,6 @@ class CategoryCell: UICollectionViewCell {
     
     func configure(title: String) {
         titleLabel.text = title
+        
     }
 }
