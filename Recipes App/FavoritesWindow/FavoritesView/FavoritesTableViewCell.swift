@@ -127,9 +127,15 @@ class FavoritesTableViewCell: UITableViewCell {
         onDelete?()
     }
     
-    func configure(with recipe: Recipes, onDelete: @escaping () -> Void) {
-        recipeImageView.image = recipe.image
-        titleLabel.text = recipe.title
-        self.onDelete = onDelete
+    func configure(title: String, imageUrl: String?) {
+        func configure(title: String, imageUrl: String?, authName: String) {
+            titleLabel.text = title
+           
+            if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
+                recipeImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
+            } else {
+                recipeImageView.image = UIImage(systemName: "photo")
+            }
+        }
     }
 }
