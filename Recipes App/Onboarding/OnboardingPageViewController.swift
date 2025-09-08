@@ -1,9 +1,4 @@
-//
-//  OnboardingPageViewController.swift
-//  Recipes App
-//
-//  Created by Aziza Azizova on 20/08/25.
-//
+
 
 import UIKit
 
@@ -39,6 +34,7 @@ class OnboardingPageViewController: UIPageViewController {
         }
     }
 
+#warning("если есть презентер, то все методы ниже должны быть там")
     func goToSlide(at index: Int) {
         guard index >= 0, index < pages.count, !isTransitioning else { return }
         let direction: UIPageViewController.NavigationDirection = index > currentIndex ? .forward : .reverse

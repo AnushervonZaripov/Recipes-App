@@ -1,9 +1,6 @@
 //
 //  HomeViewController.swift
 //  Recipes App
-//
-//  Created by Zaripov Anushervon  on 18/08/25.
-//
 
 import UIKit
 
@@ -41,7 +38,7 @@ class HomeViewController: UIViewController {
        return textField
     }()
     
-
+#warning("это лучше вынести в отдельный enum")
     private var popularCategories = [
         "Main Course",
         "Side Dish",
@@ -58,12 +55,13 @@ class HomeViewController: UIViewController {
         "Snack",
         "Drink"
     ]
-
+#warning("эту и предыдущую переменную можно (и нужно) тянуть из presenter, во View не должно быть данных")
     private var recentRecipes = ["Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe"," Kelewele Ghanian Recipe"]
     
     private var trendingRecipes: [TrendingResult] = []
     private var popularRecipes: [PopularResult] = []
-    
+
+#warning("лучше кастить сразу на месте + без force unwrap")
     private var collectionView: UICollectionView!
     
     override func viewDidLoad() {
@@ -74,6 +72,8 @@ class HomeViewController: UIViewController {
         setupConstraints()
         setupCollectionView()
         getTrendingRecipes()
+
+#warning("лучше вынести это в отдельную функцию + можно сразу цветом выделять первую категорию")
         if let firstCategory = popularCategories.first {
                fetchRecipes(for: firstCategory)
            }
@@ -105,6 +105,7 @@ class HomeViewController: UIViewController {
 
         view.addSubview(collectionView)
 
+#warning("есть более элегантный способ задать identifier")
         collectionView.register(TrendingCell.self, forCellWithReuseIdentifier: "TrendingCell")
         collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
         collectionView.register(DetailedCategoryCell.self, forCellWithReuseIdentifier: "DetailedCategoryCell")
@@ -347,7 +348,8 @@ extension HomeViewController: UICollectionViewDelegate {
             print("Tapped recent recipe: \(recentRecipes[indexPath.item])")
         }
     }
-    
+
+#warning("эти методы должны быть в презентере")
     func getTrendingRecipes() {
         NetworkManager.shared.getTrendingRecipes { [weak self] result in
             switch result {

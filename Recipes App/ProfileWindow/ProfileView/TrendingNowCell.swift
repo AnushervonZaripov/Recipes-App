@@ -55,7 +55,8 @@ class TrendingNowCell: UITableViewCell {
         hs.translatesAutoresizingMaskIntoConstraints = false
         return hs
     }()
-    
+
+#warning("это лучше поднять в файле повыше")
     var onDelete: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -148,7 +149,8 @@ class TrendingNowCell: UITableViewCell {
         recipeImageView.image = recipe.image
         self.onDelete = onDelete
     }
-    
+
+    #warning("это для чего?")
     func transferRecipesImage() -> UIImageView {
         var imageView = UIImageView()
         imageView = recipeImageView

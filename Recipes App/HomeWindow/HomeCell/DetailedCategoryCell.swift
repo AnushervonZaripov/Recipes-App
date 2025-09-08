@@ -8,7 +8,8 @@
 import UIKit
 
     class DetailedCategoryCell: UICollectionViewCell {
-        
+
+#warning("избегать литералов в коде")
         private let foodImageView: UIImageView = {
             let imageView = UIImageView()
             imageView.contentMode = .scaleAspectFill
@@ -88,7 +89,8 @@ import UIKit
             setupSubviews()
             setupTrendingConstraints()
         }
-        
+
+#warning("тут лучше через цикл forEach")
         private func switchOffAuthoresizingMask() {
             foodImageView.translatesAutoresizingMaskIntoConstraints = false
             titleLabel.translatesAutoresizingMaskIntoConstraints = false

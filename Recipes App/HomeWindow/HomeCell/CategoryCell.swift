@@ -7,6 +7,7 @@
 
 import UIKit
 
+#warning("final")
 class CategoryCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()

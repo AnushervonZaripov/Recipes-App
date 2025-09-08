@@ -1,16 +1,17 @@
 //
 //  HomePresenter.swift
 //  Recipes App
-//
-//  Created by Zaripov Anushervon  on 01/09/25.
-//
 
 final class HomePresenter {
     
     weak var view: HomeViewProtocol?
-    
+
+#warning("это что?")
     private var trendingRecipes = ["How to shawrama at home", "How at home", "How to shawrama at home", "How to shawrama at home"]
+
+#warning("это лучше вынести в отдельный enum")
     private var popularCategories = ["Salad", "Breakfast", "Appetizer", "Lunch"]
+
     private var detailedCategories = ["Chicken and Vegetable wrap", "Chicken and Vegetable wrap", "Chicken and Vegetable wrap", "Chicken and Vegetable wrap"]
     private var recentRecipes = ["Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe"," Kelewele Ghanian Recipe"]
     

@@ -48,6 +48,7 @@ class OnboardingSlideViewController: UIViewController {
         setupUI()
     }
 
+#warning("это надо разнести на отдельные методы или замыкания для каста самих элементов")
     private func setupUI() {
         view.backgroundColor = .black
 

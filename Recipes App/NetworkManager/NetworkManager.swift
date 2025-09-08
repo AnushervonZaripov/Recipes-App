@@ -50,7 +50,8 @@ struct NetworkManager {
     private func makeParameters(for endpoint: Endpoint, with query: String? = nil) -> [String: String] {
         var parameters = [String: String]()
         parameters["apiKey"] = API.apiKey
-        
+
+#warning("что такое offset?")
         switch endpoint {
         case .search(let query, let number, let offset):
             parameters["query"] = query
@@ -124,7 +125,8 @@ struct NetworkManager {
             }
         }.resume()
     }
-    
+
+    #warning("эти методы лучше вынести в отдельный файл")
     func getTrendingRecipes(completion: @escaping(Result<TrendingModel,NetworkError>) -> Void) {
     
         guard let url = createURL(for: .trendingRecipes(number: 10, offset: 0)) else {

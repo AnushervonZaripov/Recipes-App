@@ -1,9 +1,4 @@
-//
-//  HeaderView.swift
-//  Recipes App
-//
-//  Created by Zaripov Anushervon  on 25/08/25.
-//
+
 
 
 import UIKit
@@ -11,7 +6,9 @@ import UIKit
 class HeaderView: UICollectionReusableView {
     private let titleLabel = UILabel()
     private let actionButton = UIButton(type: .system)
-    
+
+#warning("много низкоуровнего кода в init, лучше вынести это в отдельные функции и вызывать их в ините")
+// предназначение инита -- подготовка представления к использованию, а не настройка UI
     override init(frame: CGRect) {
         super.init(frame: frame)
         

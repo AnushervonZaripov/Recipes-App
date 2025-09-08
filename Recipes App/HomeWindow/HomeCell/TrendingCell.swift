@@ -167,7 +167,8 @@ class TrendingCell: UICollectionViewCell {
         ])
 
     }
-    
+
+#warning("required init лучше оставлять прямо под основным")
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
     func configure(title: String, imageUrl: String?, authName: String) {
