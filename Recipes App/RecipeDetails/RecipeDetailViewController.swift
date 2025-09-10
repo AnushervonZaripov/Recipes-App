@@ -22,8 +22,22 @@ class RecipeDetailViewController: UIViewController, RecipeDetailView {
         super.viewDidLoad()
         setupUI()
         presenter.attachView(self)
-        presenter.loadMockRecipe()
+        presenter.loadRecipe(id: recipeId)
+
     }
+    
+    
+    private let recipeId: Int
+
+    init(recipeId: Int) {
+        self.recipeId = recipeId
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
 
     func display(recipe: Recipe) {
         headerView.configure(with: recipe)
@@ -90,5 +104,53 @@ class RecipeDetailViewController: UIViewController, RecipeDetailView {
         label.textColor = .black
         return label
     }
+    
+    func render(model: RecipeDetailModel) {
+        title = model.title
+        let recipe = mapToRecipe(from: model)
+        display(recipe: recipe)
+
+        ingredientsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        model.extendedIngredients?.forEach { ingredient in
+            let qty = "\(Int(ingredient.amount ?? 0)) \(ingredient.unit ?? "")"
+            let cell = IngredientCell()
+            cell.configure(with: Ingredient(name: ingredient.name, quantity: qty), imageName: "ingredient_placeholder")
+            ingredientsStack.addArrangedSubview(cell)
+        }
+
+        instructionsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        if let steps = model.analyzedInstructions?.first?.steps {
+            for (index, step) in steps.enumerated() {
+                let cell = InstructionCell()
+                cell.configure(step: step.step ?? "", index: index)
+                instructionsStack.addArrangedSubview(cell)
+            }
+        }
+    }
+    
+    func showError(_ message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func mapToRecipe(from model: RecipeDetailModel) -> Recipe {
+        let ingredients: [Ingredient] = model.extendedIngredients?.map {
+            let quantity = "\((Int($0.amount ?? 0))) \($0.unit ?? "")"
+            return Ingredient(name: $0.name, quantity: quantity)
+        } ?? []
+        
+        let instructions: [String] = model.analyzedInstructions?.first?.steps?.compactMap { $0.step } ?? []
+        
+        return Recipe(
+            title: model.title,
+            imageName: model.image ?? "placeholder",
+            rating: 4.5, // временно
+            reviewsCount: 120, // временно
+            ingredients: ingredients,
+            instructions: instructions
+        )
+    }
+
 }
 

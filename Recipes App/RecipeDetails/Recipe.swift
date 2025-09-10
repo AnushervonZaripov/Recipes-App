@@ -1,9 +1,3 @@
-//
-//  Recipe.swift
-//  Recipes App
-//
-//  Created by Aziza Azizova on 30/08/25.
-//
 
 import Foundation
 

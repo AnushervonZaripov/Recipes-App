@@ -35,7 +35,7 @@ struct NetworkManager {
     static let shared = NetworkManager()
     private init(){}
     
-    private func createURL(for endpoint: Endpoint, with query: String? = nil) -> URL?{
+     private func createURL(for endpoint: Endpoint, with query: String? = nil) -> URL?{
         var components = URLComponents()
         components.scheme = API.scheme
         components.host = API.host
