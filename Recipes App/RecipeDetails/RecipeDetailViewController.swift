@@ -1,10 +1,4 @@
-//
-//  RecipeDetailViewController.swift
-//  Recipes App
-//
-//  Created by Aziza Azizova on 30/08/25.
-//
-
+// RecipeDetailViewController.swift
 import UIKit
 
 class RecipeDetailViewController: UIViewController, RecipeDetailView {
@@ -18,11 +12,22 @@ class RecipeDetailViewController: UIViewController, RecipeDetailView {
     private let ingredientsStack = UIStackView()
     private let instructionsStack = UIStackView()
 
+    private let recipeId: Int
+
+    init(recipeId: Int) {
+        self.recipeId = recipeId
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         presenter.attachView(self)
-        presenter.loadMockRecipe()
+        presenter.loadRecipe(id: recipeId)
     }
 
     func display(recipe: Recipe) {
@@ -31,10 +36,9 @@ class RecipeDetailViewController: UIViewController, RecipeDetailView {
         ingredientsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         for ingredient in recipe.ingredients {
             let cell = IngredientCell()
-            cell.configure(with: ingredient, imageName: recipe.imageName)
+            cell.configure(with: ingredient)
             ingredientsStack.addArrangedSubview(cell)
         }
-
 
         instructionsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         for (index, step) in recipe.instructions.enumerated() {
@@ -61,13 +65,11 @@ class RecipeDetailViewController: UIViewController, RecipeDetailView {
         instructionsStack.axis = .vertical
         instructionsStack.spacing = 12
 
-        contentStack.addArrangedSubview(headerView) // фото, заголовок, рейтинг
+        contentStack.addArrangedSubview(headerView)
         contentStack.addArrangedSubview(makeSectionTitle("Instructions"))
         contentStack.addArrangedSubview(instructionsStack)
-        contentStack.addArrangedSubview(makeSectionTitle("Ingredients (5 items)"))
+        contentStack.addArrangedSubview(makeSectionTitle("Ingredients"))
         contentStack.addArrangedSubview(ingredientsStack)
-      
-
 
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -90,5 +92,64 @@ class RecipeDetailViewController: UIViewController, RecipeDetailView {
         label.textColor = .black
         return label
     }
-}
 
+    // Получаем данные из сети и маппим в UI-модель
+    func render(model: RecipeDetailModel) {
+        title = model.title
+
+        let recipe = mapToRecipe(from: model)
+        display(recipe: recipe)
+
+        ingredientsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        model.extendedIngredients?.forEach { ingredient in
+            let qty = "\(Int(ingredient.amount ?? 0)) \(ingredient.unit ?? "")"
+            let imageURL = makeIngredientImageURL(ingredient.image)
+            let cell = IngredientCell()
+            cell.configure(with: Ingredient(name: ingredient.name, quantity: qty, imageURL: imageURL))
+            ingredientsStack.addArrangedSubview(cell)
+        }
+
+        instructionsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        if let steps = model.analyzedInstructions?.first?.steps {
+            for (index, step) in steps.enumerated() {
+                let cell = InstructionCell()
+                cell.configure(step: step.step ?? "", index: index)
+                instructionsStack.addArrangedSubview(cell)
+            }
+        }
+    }
+
+    func showError(_ message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func mapToRecipe(from model: RecipeDetailModel) -> Recipe {
+        let ingredients: [Ingredient] = model.extendedIngredients?.map {
+            let quantity = "\(Int($0.amount ?? 0)) \($0.unit ?? "")"
+            return Ingredient(
+                name: $0.name,
+                quantity: quantity,
+                imageURL: makeIngredientImageURL($0.image)
+            )
+        } ?? []
+
+        let instructions: [String] = model.analyzedInstructions?.first?.steps?.compactMap { $0.step } ?? []
+
+        return Recipe(
+            title: model.title,
+            imageURL: model.image, // ожидается полный URL от API
+            rating: 4.5,           // TODO: если появится рейтинг — подставить
+            reviewsCount: 120,     // TODO: реальное значение по данным
+            ingredients: ingredients,
+            instructions: instructions
+        )
+    }
+
+    private func makeIngredientImageURL(_ imageName: String?) -> String? {
+        guard let imageName, !imageName.isEmpty else { return nil }
+        // Документация Spoonacular: cdn/ingredients_100x100
+        return "https://spoonacular.com/cdn/ingredients_100x100/\(imageName)"
+    }
+}

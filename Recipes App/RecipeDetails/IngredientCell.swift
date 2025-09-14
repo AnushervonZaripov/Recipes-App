@@ -1,12 +1,6 @@
-//
-//  IngredientCell.swift
-//  Recipes App
-//
-//  Created by Aziza Azizova on 30/08/25.
-//
 import UIKit
 
-class IngredientCell: UIView {
+final class IngredientCell: UIView {
 
     private let container = UIView()
     private let iconView = UIImageView()
@@ -23,15 +17,24 @@ class IngredientCell: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with ingredient: Ingredient, imageName: String) {
-        iconView.image = UIImage(named: imageName)
+    func configure(with ingredient: Ingredient) {
         nameLabel.text = ingredient.name
         quantityLabel.text = ingredient.quantity
+
+        if let urlStr = ingredient.imageURL {
+            ImageLoader.shared.load(
+                urlStr,
+                into: iconView,
+                placeholder: UIImage(named: "ingredient_placeholder")
+            )
+        } else {
+            iconView.image = UIImage(named: "ingredient_placeholder")
+        }
     }
 
     private func setup() {
         // Серый контейнер
-        container.backgroundColor = .neutral10
+        container.backgroundColor = UIColor.systemGray5
         container.layer.cornerRadius = 12
         container.translatesAutoresizingMaskIntoConstraints = false
         addSubview(container)
@@ -55,10 +58,15 @@ class IngredientCell: UIView {
         // Название
         nameLabel.font = .systemFont(ofSize: 16, weight: .medium)
         nameLabel.textColor = .black
+        nameLabel.numberOfLines = 2
+        nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
         // Граммовка
         quantityLabel.font = .systemFont(ofSize: 16)
         quantityLabel.textColor = .gray
+        quantityLabel.textAlignment = .right
+        quantityLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         quantityLabel.setContentHuggingPriority(.required, for: .horizontal)
 
         // Горизонтальный стек
