@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class FavoritesTableViewCell: UITableViewCell {
     static let identifier = "RecipeCell"
@@ -27,6 +28,7 @@ class FavoritesTableViewCell: UITableViewCell {
         setupTime()
         setupRating()
         makeConstraints()
+        
     }
     
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -126,10 +128,19 @@ class FavoritesTableViewCell: UITableViewCell {
     @objc private func deleteTapped() {
         onDelete?()
     }
-    
-    func configure(with recipe: Recipes, onDelete: @escaping () -> Void) {
-        recipeImageView.image = recipe.image
-        titleLabel.text = recipe.title
-        self.onDelete = onDelete
+
+    func configure(with recipe: TrendingResult) {
+        titleLabel.text = recipe.title ?? "No title"
+
+        if let urlString = recipe.image, let url = URL(string: urlString) {
+            recipeImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
+        } else if let imageName = recipe.imageType {
+            // fallback на локальное изображение
+            recipeImageView.image = UIImage(named: imageName)
+        } else {
+            recipeImageView.image = UIImage(systemName: "photo")
+        }
     }
+
+
 }

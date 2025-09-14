@@ -20,6 +20,7 @@ class HomeViewController: UIViewController {
         case detailedCategory
         case recent
     }
+    private let savedStorage = SavedRecipesStorage()
     
     private let mainLabel: UILabel = {
        let label = UILabel()
@@ -62,7 +63,7 @@ class HomeViewController: UIViewController {
     private var recentRecipes = ["Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe"," Kelewele Ghanian Recipe"]
     
     private var trendingRecipes: [TrendingResult] = []
-    private var popularRecipes: [PopularResult] = []
+    private var popularRecipes: [TrendingResult] = []
     
     private var collectionView: UICollectionView!
     
@@ -74,9 +75,14 @@ class HomeViewController: UIViewController {
         setupConstraints()
         setupCollectionView()
         getTrendingRecipes()
+        hideKeyboardWhenTappedAround()
         if let firstCategory = popularCategories.first {
                fetchRecipes(for: firstCategory)
            }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        getTrendingRecipes()
     }
 
     private func setupSubviews() {
@@ -264,28 +270,35 @@ extension HomeViewController: UICollectionViewDataSource {
                 for: indexPath
             ) as! TrendingCell
             let recipe = trendingRecipes[indexPath.item]
-            cell.configure(title: recipe.title ?? "", imageUrl: recipe.image, authName: "\("By " + (recipe.author ?? "Zeelecious Foodie"))")
+            cell.configure(with: recipe)
+            cell.onSaveTapped = { [weak self] in
+                guard let self = self else { return }
+                self.collectionView.reloadItems(at: [indexPath])
+            }
+
             return cell
+
 
         case .categories:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
                        cell.configure(title: popularCategories[indexPath.item])
-                       return cell
+            return cell
         case .detailedCategory:
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "DetailedCategoryCell",
                 for: indexPath
             ) as! DetailedCategoryCell
-            
-            // Проверяем, есть ли данные
             if popularRecipes.indices.contains(indexPath.item) {
                 let recipe = popularRecipes[indexPath.item]
-                cell.configure(title: recipe.title ?? "", image: recipe.image, time: recipe.maxReadyTime ?? 5)
-            } else {
-                // Можно сбросить предыдущие данные или показать placeholder
-                cell.configure(title: "", image: nil, time: 0)
+                cell.configure(with: recipe)  // ← важно!
+            }
+            
+            cell.onSaveTapped = { [weak self] in
+                guard let self = self else { return }
+                self.collectionView.reloadItems(at: [indexPath])
             }
             return cell
+
 
         case .recent:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RecentCell", for: indexPath) as! RecentCell
@@ -307,16 +320,30 @@ extension HomeViewController: UICollectionViewDataSource {
         
         switch indexPath.section {
         case 0: header.configure(title: "Trending now 🔥", buttonTitle: "See all")
+            header.delegate = self
         case 1: header.configure(title: "Popular category", buttonTitle: nil)
+            header.delegate = self
         case 3: header.configure(title: "Recent recipe", buttonTitle: "See all")
+            header.delegate = self
         default: break
         }
         return header
     }
+    
+    @objc private func goToTrendingSection() {
+            if let tabBarController = self.tabBarController {
+                tabBarController.selectedIndex = 4 
+            }
+        }
 }
 
 
-extension HomeViewController: UICollectionViewDelegate {
+
+extension HomeViewController: UICollectionViewDelegate, HeaderViewDelegate {
+    func didTapHeaderButton(_ header: HeaderView) {
+        goToTrendingSection()
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
         
@@ -355,6 +382,7 @@ extension HomeViewController: UICollectionViewDelegate {
                 print("✅ Получено с бэка: \(trending.results?.count ?? 0) рецептов")
                 DispatchQueue.main.async {
                     self?.trendingRecipes = trending.results ?? []
+                    let ids = trending.results?.map { $0.id } ?? []
                     self?.collectionView.reloadData()
                 }
 
@@ -369,7 +397,7 @@ extension HomeViewController: UICollectionViewDelegate {
             switch result {
             case .success(let data):
                 DispatchQueue.main.async {
-                    self?.popularRecipes = data.results
+                    self?.popularRecipes = data.results ?? [TrendingResult]()
                     self?.collectionView.reloadSections(IndexSet(integer: Section.detailedCategory.rawValue))
                 }
             case .failure(let error):

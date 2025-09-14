@@ -131,10 +131,10 @@ struct NetworkManager {
             completion(.failure(.invalidURL))
             return
         }
-        makeTask(for: url, apiKey: Token.fifth, completion: completion)
+        makeTask(for: url, apiKey: Token.seventeen, completion: completion)
     }
     
-    func getPopularRecipes(type: String, completion: @escaping(Result<PopularModel,NetworkError>) -> Void) {
+    func getPopularRecipes(type: String, completion: @escaping(Result<TrendingModel,NetworkError>) -> Void) {
         
         guard let url = createURL(for: .popularRecipes(number: 10, offset: 0, cuisine: "italian", type: type.lowercased())) else {
             completion(.failure(.invalidURL))
@@ -142,7 +142,17 @@ struct NetworkManager {
         }
         
         print(url)
-        makeTask(for: url, apiKey: Token.fifth, completion: completion)
+        makeTask(for: url, apiKey: Token.seventeen, completion: completion)
     }
     
+    func getRecipeIngredientsCount(recipeId: Int, completion: @escaping (Result<RecipeInfo, NetworkError>) -> Void) {
+        
+        guard let url = createURL(for: .recipeInformation(id: recipeId, includeNutrition: false)) else {
+                  completion(.failure(.invalidURL))
+                  return
+              }
+        
+        makeTask(for: url, apiKey: Token.seventeen, completion: completion)
+        
+    }
 }

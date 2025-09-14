@@ -144,10 +144,16 @@ class TrendingNowCell: UITableViewCell {
         onDelete?()
     }
     
-    func configure(with recipe: Recipes, onDelete: @escaping () -> Void) {
-        recipeImageView.image = recipe.image
-        self.onDelete = onDelete
+    func configure(title: String, imageUrl: String?, ingredientsNumber: Int, cookingTime: Int) {
+        titleLabel.text = title
+        ingredientsNumberLabel.text = "\(ingredientsNumber) ingredients | \(cookingTime) min"
+        if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
+            recipeImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
+        } else {
+            recipeImageView.image = UIImage(systemName: "photo")
+        }
     }
+    
     
     func transferRecipesImage() -> UIImageView {
         var imageView = UIImageView()
