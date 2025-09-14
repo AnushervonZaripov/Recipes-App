@@ -145,4 +145,15 @@ struct NetworkManager {
         makeTask(for: url, apiKey: Token.fifth, completion: completion)
     }
     
+    func getRecipeDetails(id: Int, completion: @escaping(Result<RecipeDetailModel, NetworkError>) -> Void) {
+        let endpoint = Endpoint.recipeInformation(id: id, includeNutrition: false)
+        
+        guard let url = createURL(for: endpoint) else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        
+        makeTask(for: url, apiKey: Token.fifth, completion: completion)
+    }
+
 }

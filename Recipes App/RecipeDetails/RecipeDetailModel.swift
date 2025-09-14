@@ -1,4 +1,3 @@
-//
 //  RecipeDetailModel.swift
 //  Recipes App
 //
@@ -7,7 +6,7 @@
 
 import Foundation
 
-struct RecipeDetailModel: Decodable {
+struct RecipeDetailModel: Codable {
     let id: Int
     let title: String
     let image: String?
@@ -17,19 +16,20 @@ struct RecipeDetailModel: Decodable {
     let extendedIngredients: [ExtendedIngredient]?
     let analyzedInstructions: [Instruction]?
 
-    struct ExtendedIngredient: Decodable {
+    struct ExtendedIngredient: Codable {
         let name: String
         let amount: Double?
         let unit: String?
         let original: String?
+        let image: String? // ✅ добавлено поле для загрузки иконки
     }
 
-    struct Instruction: Decodable {
+    struct Instruction: Codable {
         let name: String?
         let steps: [Step]?
     }
 
-    struct Step: Decodable {
+    struct Step: Codable {
         let number: Int?
         let step: String?
     }
