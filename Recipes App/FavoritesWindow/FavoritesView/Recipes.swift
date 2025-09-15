@@ -11,4 +11,8 @@ struct Recipes: Codable {
     }
 }
 
+class FavoritesStorage {
+    static var items: [Recipes] = []
+}
+
 

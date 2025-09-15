@@ -7,7 +7,6 @@
 import UIKit
 
 class FavoritesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    var recipes: [Recipes] = []
     let tableView = UITableView()
     var images = [UIImage(named: "savedRecipe1"), UIImage(named: "savedRecipe2"), UIImage(named: "savedRecipe3")]
     
@@ -17,6 +16,11 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         view.addSubview(tableView)
         setupTableView()
         setupNavigationLabel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
     
     private func setupNavigationLabel() {
@@ -39,21 +43,30 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func addRecipes(_ recipe: Recipes) {
-        recipes.append(recipe)
+        FavoritesStorage.items.append(recipe)
         tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return images.count
+        return FavoritesStorage.items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FavoritesTableViewCell.identifier, for: indexPath) as? FavoritesTableViewCell else {
             return UITableViewCell()
         }
-        
-        cell.recipeImageView.image = images[indexPath.row]
-        
+        let recipe = FavoritesStorage.items[indexPath.row]
+        cell.titleLabel.text = recipe.title
+        cell.recipeImageView = UIImageView(image: recipe.image)
+        cell.deleteButton.tag = indexPath.row
+        cell.deleteButton.addTarget(self, action:#selector(deleteButtonTapped), for: .touchUpInside)
         return cell
+    }
+    
+    @objc func deleteButtonTapped(_ sender: UIButton) {
+        let index = sender.tag
+        images.remove(at: index)
+        tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+        tableView.reloadData()
     }
 }

@@ -10,6 +10,8 @@ import SDWebImage
 
 class TrendingCell: UICollectionViewCell {
     
+    var onSave: (() -> Void)?
+    
     private let foodImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -70,6 +72,7 @@ class TrendingCell: UICollectionViewCell {
           config.image = UIImage(named: "Bookmark")
           config.background.cornerRadius = 24
           let button = UIButton(configuration: config)
+        button.addTarget(button.self, action: #selector(tappedSaveButton), for: .touchUpInside)
           return button
     }()
     
@@ -179,4 +182,9 @@ class TrendingCell: UICollectionViewCell {
             foodImageView.image = UIImage(systemName: "photo")
         }
     }
+    @objc func tappedSaveButton() {
+        onSave?()
+        print("hey")
+    }
+    
 }
