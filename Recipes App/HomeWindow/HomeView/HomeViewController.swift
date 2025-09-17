@@ -60,7 +60,7 @@ class HomeViewController: UIViewController {
         "Drink"
     ]
 
-    private var recentRecipes = ["Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe", "Kelewele Ghanian Recipe"," Kelewele Ghanian Recipe"]
+    private var recentRecipes: [RecentResult] = []
     
     private var trendingRecipes: [TrendingResult] = []
     private var popularRecipes: [TrendingResult] = []
@@ -301,9 +301,13 @@ extension HomeViewController: UICollectionViewDataSource {
 
 
         case .recent:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RecentCell", for: indexPath) as! RecentCell
-            cell.configure(title: recentRecipes[indexPath.item])
-            return cell
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: "RecentCell",
+                    for: indexPath
+                ) as! RecentCell
+                let recipe = recentRecipes[indexPath.item]
+                cell.configure(title: recipe.title ?? "")
+                return cell
         }
     }
     
@@ -367,11 +371,32 @@ extension HomeViewController: UICollectionViewDelegate, HeaderViewDelegate {
                     
             
         case .trending:
-            print("Tapped trending: \(trendingRecipes[indexPath.item])")
+            let selectedRecipe = trendingRecipes[indexPath.item]
+            guard let recipeId = selectedRecipe.id else {
+                print("❌ Нет ID у рецепта")
+                return
+            }
+            let detailVC = RecipeDetailViewController(recipeId: recipeId)
+            navigationController?.pushViewController(detailVC, animated: true)
+
         case .detailedCategory:
-            print("Tapped detailed category: \(popularRecipes[indexPath.item])")
+            let selectedRecipe = popularRecipes[indexPath.item]
+            guard let recipeId = selectedRecipe.id else {
+                print("❌ Нет ID у рецепта")
+                return
+            }
+            let detailVC = RecipeDetailViewController(recipeId: recipeId)
+            navigationController?.pushViewController(detailVC, animated: true)
+
         case .recent:
-            print("Tapped recent recipe: \(recentRecipes[indexPath.item])")
+            let selectedRecipe = recentRecipes[indexPath.item]
+            guard let recipeId = selectedRecipe.id else {
+                print("❌ Нет ID у рецепта")
+                return
+            }
+            let detailVC = RecipeDetailViewController(recipeId: recipeId)
+            navigationController?.pushViewController(detailVC, animated: true)
+
         }
     }
     

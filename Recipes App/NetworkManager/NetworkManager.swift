@@ -35,7 +35,7 @@ struct NetworkManager {
     static let shared = NetworkManager()
     private init(){}
     
-    private func createURL(for endpoint: Endpoint, with query: String? = nil) -> URL?{
+     private func createURL(for endpoint: Endpoint, with query: String? = nil) -> URL?{
         var components = URLComponents()
         components.scheme = API.scheme
         components.host = API.host
@@ -154,5 +154,15 @@ struct NetworkManager {
         
         makeTask(for: url, apiKey: Token.seventeen, completion: completion)
         
+    func getRecipeDetails(id: Int, completion: @escaping(Result<RecipeDetailModel, NetworkError>) -> Void) {
+        let endpoint = Endpoint.recipeInformation(id: id, includeNutrition: false)
+        
+        guard let url = createURL(for: endpoint) else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        
+        makeTask(for: url, apiKey: Token.fifth, completion: completion)
     }
+
 }

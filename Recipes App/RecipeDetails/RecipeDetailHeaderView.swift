@@ -1,9 +1,3 @@
-//
-//  RecipeDetailHeaderView.swift
-//  Recipes App
-//
-//  Created by Aziza Azizova on 30/08/25.
-//
 
 import UIKit
 
@@ -23,9 +17,14 @@ class RecipeDetailHeaderView: UIView {
     }
 
     func configure(with recipe: Recipe) {
-        imageView.image = UIImage(named: recipe.imageName)
         titleLabel.text = recipe.title
         ratingLabel.text = "⭐️ \(recipe.rating) (\(recipe.reviewsCount) reviews)"
+
+        ImageLoader.shared.load(
+            recipe.imageURL,
+            into: imageView,
+            placeholder: UIImage(named: "placeholder")
+        )
     }
 
     private func setup() {
