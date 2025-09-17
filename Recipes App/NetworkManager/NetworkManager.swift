@@ -35,7 +35,7 @@ struct NetworkManager {
     static let shared = NetworkManager()
     private init(){}
     
-     private func createURL(for endpoint: Endpoint, with query: String? = nil) -> URL?{
+    private func createURL(for endpoint: Endpoint, with query: String? = nil) -> URL?{
         var components = URLComponents()
         components.scheme = API.scheme
         components.host = API.host
@@ -64,12 +64,6 @@ struct NetworkManager {
             parameters["offset"] = "\(offset)"
             parameters["addRecipeInformation"] = "true"
             
-        case .recentRecipes(let number, let offset):
-            parameters["sort"] = "random"
-            parameters["number"] = "\(number)"
-            parameters["offset"] = "\(offset)"
-            parameters["addRecipeInformation"] = "true"
-            
         case .popularRecipes(let number, let offset, let cuisine, let type):
             parameters["sort"] = "popularity"
             parameters["number"] = "\(number)"
@@ -82,7 +76,7 @@ struct NetworkManager {
                 parameters["type"] = type
             }
             parameters["addRecipeInformation"] = "true"
-
+            
             
         case .recipeInformation(_, let includeNutrition):
             parameters["includeNutrition"] = includeNutrition ? "true" : "false"
@@ -90,7 +84,7 @@ struct NetworkManager {
         
         return parameters
     }
-
+    
     private func makeTask<T: Codable>(for url: URL, apiKey: String, using session: URLSession = .shared, completion: @escaping(Result<T,NetworkError>)-> Void) {
         var request = URLRequest(url: url)
         request.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
@@ -105,7 +99,7 @@ struct NetworkManager {
                 completion(.failure(.serverError(statusCode: 0)))
                 return
             }
-
+            
             guard (200..<300).contains(httpResponse.statusCode) else {
                 completion(.failure(.serverError(statusCode: httpResponse.statusCode)))
                 return
@@ -126,7 +120,7 @@ struct NetworkManager {
     }
     
     func getTrendingRecipes(completion: @escaping(Result<TrendingModel,NetworkError>) -> Void) {
-    
+        
         guard let url = createURL(for: .trendingRecipes(number: 10, offset: 0)) else {
             completion(.failure(.invalidURL))
             return
@@ -148,21 +142,20 @@ struct NetworkManager {
     func getRecipeIngredientsCount(recipeId: Int, completion: @escaping (Result<RecipeInfo, NetworkError>) -> Void) {
         
         guard let url = createURL(for: .recipeInformation(id: recipeId, includeNutrition: false)) else {
-                  completion(.failure(.invalidURL))
-                  return
-              }
-        
-        makeTask(for: url, apiKey: Token.seventeen, completion: completion)
-        
-    func getRecipeDetails(id: Int, completion: @escaping(Result<RecipeDetailModel, NetworkError>) -> Void) {
-        let endpoint = Endpoint.recipeInformation(id: id, includeNutrition: false)
-        
-        guard let url = createURL(for: endpoint) else {
             completion(.failure(.invalidURL))
             return
         }
         
-        makeTask(for: url, apiKey: Token.fifth, completion: completion)
+        makeTask(for: url, apiKey: Token.seventeen, completion: completion)
     }
-
+        func getRecipeDetails(id: Int, completion: @escaping(Result<RecipeDetailModel, NetworkError>) -> Void) {
+            let endpoint = Endpoint.recipeInformation(id: id, includeNutrition: false)
+            
+            guard let url = createURL(for: endpoint) else {
+                completion(.failure(.invalidURL))
+                return
+            }
+            
+            makeTask(for: url, apiKey: Token.fifth, completion: completion)
+        }
 }
