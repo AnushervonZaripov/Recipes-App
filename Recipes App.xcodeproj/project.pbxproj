@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EEE83B012E6D6DFE00D6144F /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = EEE83B002E6D6DFE00D6144F /* SDWebImage */; };
-		EEE83B032E6D6DFE00D6144F /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = EEE83B022E6D6DFE00D6144F /* SDWebImageMapKit */; };
+		EE325D4E2E6E9DAD001F4475 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = EE325D4D2E6E9DAD001F4475 /* SDWebImage */; };
+		EE325D502E6E9DAD001F4475 /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = EE325D4F2E6E9DAD001F4475 /* SDWebImageMapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,8 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE83B032E6D6DFE00D6144F /* SDWebImageMapKit in Frameworks */,
-				EEE83B012E6D6DFE00D6144F /* SDWebImage in Frameworks */,
+				EE325D502E6E9DAD001F4475 /* SDWebImageMapKit in Frameworks */,
+				EE325D4E2E6E9DAD001F4475 /* SDWebImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,8 +85,8 @@
 			);
 			name = "Recipes App";
 			packageProductDependencies = (
-				EEE83B002E6D6DFE00D6144F /* SDWebImage */,
-				EEE83B022E6D6DFE00D6144F /* SDWebImageMapKit */,
+				EE325D4D2E6E9DAD001F4475 /* SDWebImage */,
+				EE325D4F2E6E9DAD001F4475 /* SDWebImageMapKit */,
 			);
 			productName = "Recipes App";
 			productReference = EECAEEE02E5093050092F444 /* Recipes App.app */;
@@ -117,7 +117,7 @@
 			mainGroup = EECAEED72E5093040092F444;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EEE83AFF2E6D6DFE00D6144F /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				EE325D4C2E6E9DAD001F4475 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EECAEEE12E5093050092F444 /* Products */;
@@ -347,7 +347,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		EEE83AFF2E6D6DFE00D6144F /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+		EE325D4C2E6E9DAD001F4475 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
 			requirement = {
@@ -358,14 +358,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		EEE83B002E6D6DFE00D6144F /* SDWebImage */ = {
+		EE325D4D2E6E9DAD001F4475 /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EEE83AFF2E6D6DFE00D6144F /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			package = EE325D4C2E6E9DAD001F4475 /* XCRemoteSwiftPackageReference "SDWebImage" */;
 			productName = SDWebImage;
 		};
-		EEE83B022E6D6DFE00D6144F /* SDWebImageMapKit */ = {
+		EE325D4F2E6E9DAD001F4475 /* SDWebImageMapKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EEE83AFF2E6D6DFE00D6144F /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			package = EE325D4C2E6E9DAD001F4475 /* XCRemoteSwiftPackageReference "SDWebImage" */;
 			productName = SDWebImageMapKit;
 		};
 /* End XCSwiftPackageProductDependency section */

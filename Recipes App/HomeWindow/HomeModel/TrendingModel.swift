@@ -15,4 +15,6 @@ struct TrendingResult: Codable {
     var image: String?
     var imageType: String?
     var author: String?
+    var maxReadyTime: Int?
+    
 }

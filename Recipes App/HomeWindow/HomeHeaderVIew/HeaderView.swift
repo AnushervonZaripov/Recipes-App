@@ -8,9 +8,16 @@
 
 import UIKit
 
+
+protocol HeaderViewDelegate: AnyObject {
+    func didTapHeaderButton(_ header: HeaderView)
+}
+
 class HeaderView: UICollectionReusableView {
     private let titleLabel = UILabel()
     private let actionButton = UIButton(type: .system)
+    
+    weak var delegate: HeaderViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,5 +49,11 @@ class HeaderView: UICollectionReusableView {
         titleLabel.text = title
         actionButton.setTitle(buttonTitle, for: .normal)
         actionButton.isHidden = (buttonTitle == nil)
+        actionButton.addTarget(self, action: #selector(buttonTappedCasual), for: .touchUpInside)
     }
+    
+    @objc private func buttonTappedCasual() {
+        delegate?.didTapHeaderButton(self)
+    }
+
 }

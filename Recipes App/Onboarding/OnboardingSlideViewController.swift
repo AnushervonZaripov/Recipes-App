@@ -135,6 +135,7 @@ class OnboardingSlideViewController: UIViewController {
 
     @objc private func skipTapped() {
         delegate?.didTapSkip()
+        
     }
 
     func updatePageControl(to index: Int) {

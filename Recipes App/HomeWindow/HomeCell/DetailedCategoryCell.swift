@@ -9,12 +9,17 @@ import UIKit
 
     class DetailedCategoryCell: UICollectionViewCell {
         
+        private let savedStorage = SavedRecipesStorage()
+        var onSaveTapped: (() -> Void)?
+        private var recipe: TrendingResult?
+        
         private let foodImageView: UIImageView = {
             let imageView = UIImageView()
             imageView.contentMode = .scaleAspectFill
             imageView.clipsToBounds = true
             imageView.image = UIImage(named: "shawrama")
             imageView.layer.cornerRadius = 55
+            imageView.isUserInteractionEnabled = true
             return imageView
         }()
         
@@ -54,13 +59,15 @@ import UIKit
             return label
         }()
         
-        private let saveButtonView: UIView = {
-              var config = UIButton.Configuration.plain()
-              config.image = UIImage(named: "Bookmark")
-              config.background.cornerRadius = 24
-              let button = UIButton(configuration: config)
-              return button
+        private let saveButton: UIButton = {
+            let button = UIButton(type: .system)
+            var config = UIButton.Configuration.plain()
+            config.image = UIImage(named: "Bookmark")
+            button.configuration = config
+            button.isUserInteractionEnabled = true
+            return button
         }()
+
         
         private let verticalStackView: UIStackView = {
             let stackView = UIStackView()
@@ -74,10 +81,15 @@ import UIKit
             let stackView = UIStackView()
             stackView.axis = .horizontal
             stackView.distribution = .fill
+            stackView.isUserInteractionEnabled = true
             return stackView
         }()
         
-        private let spacerView = UIView()
+        private let spacerView: UIView = {
+            let sv = UIView()
+            sv.isUserInteractionEnabled = false
+            return sv
+        }()
         private let verticalSpacerView = UIView()
         
         override init(frame: CGRect) {
@@ -87,6 +99,7 @@ import UIKit
             switchOffAuthoresizingMask()
             setupSubviews()
             setupTrendingConstraints()
+            saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         }
         
         private func switchOffAuthoresizingMask() {
@@ -95,7 +108,7 @@ import UIKit
             cardView.translatesAutoresizingMaskIntoConstraints = false
             timeLabel.translatesAutoresizingMaskIntoConstraints = false
             cookingTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-            saveButtonView.translatesAutoresizingMaskIntoConstraints = false
+            saveButton.translatesAutoresizingMaskIntoConstraints = false
             verticalStackView.translatesAutoresizingMaskIntoConstraints = false
             cookingTimeLabel.translatesAutoresizingMaskIntoConstraints = false
             spacerView.translatesAutoresizingMaskIntoConstraints = false
@@ -113,7 +126,7 @@ import UIKit
             verticalStackView.addArrangedSubview(horizontalStack)
             horizontalStack.addArrangedSubview(cookingTimeLabel)
             horizontalStack.addArrangedSubview(spacerView)
-            horizontalStack.addArrangedSubview(saveButtonView)
+            horizontalStack.addArrangedSubview(saveButton)
         }
         
         private func setupTrendingConstraints() {
@@ -136,13 +149,45 @@ import UIKit
                 verticalStackView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
                 verticalStackView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -11),
                 
-                saveButtonView.heightAnchor.constraint(equalToConstant: 24),
-                saveButtonView.widthAnchor.constraint(equalToConstant: 24)
+                saveButton.heightAnchor.constraint(equalToConstant: 24),
+                saveButton.widthAnchor.constraint(equalToConstant: 24)
                 
             ])
                     }
         
         required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+        
+        func configure(with recipe: TrendingResult) {
+            self.recipe = recipe
+            titleLabel.text = recipe.title ?? ""
+            
+            if let urlString = recipe.image, let url = URL(string: urlString) {
+                foodImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
+            } else {
+                foodImageView.image = UIImage(systemName: "photo")
+            }
+            
+            cookingTimeLabel.text = "\(String(describing: recipe.maxReadyTime)) min"
+            
+            setSavedState(savedStorage.isSaved(recipe))
+        }
+        
+        @objc private func saveTapped() {
+            guard let recipe = recipe else { return }
+            if savedStorage.isSaved(recipe) {
+                savedStorage.removeRecipe(recipe)
+                setSavedState(false)
+            } else {
+                savedStorage.saveRecipe(recipe)
+                setSavedState(true)
+            }
+            onSaveTapped?()
+        }
+        
+        private func setSavedState(_ saved: Bool) {
+            let imageName = saved ? "Active" : "Bookmark"
+            saveButton.setImage(UIImage(named: imageName), for: .normal)
+        }
         
         func configure(title: String, image: String?, time: Int) {
             titleLabel.text = title
@@ -151,10 +196,6 @@ import UIKit
             } else {
                 foodImageView.image = UIImage(systemName: "photo")
             }
-            
-            cookingTimeLabel.text = "\(time) min"
-            
         }
-
     }
 

@@ -8,9 +8,11 @@
 import UIKit
 
 class ProfileViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    var recipes: [Recipes] = []
+    
+    var recipes: [TrendingResult] = []
+    var ingredientsCountDict: [Int: Int] = [:]
+    
     let tableView = UITableView()
-    var images = [UIImage(named: "savedRecipe1"), UIImage(named: "savedRecipe2"), UIImage(named: "savedRecipe3")]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +20,7 @@ class ProfileViewController: UIViewController, UITableViewDataSource, UITableVie
         view.addSubview(tableView)
         setupTableView()
         setupNavigationLabel()
+        getTrendingRecipes()
     }
     
     private func setupNavigationLabel() {
@@ -27,7 +30,6 @@ class ProfileViewController: UIViewController, UITableViewDataSource, UITableVie
         navigationLabel.textColor = .neutral100
         navigationLabel.textAlignment = .center
         navigationLabel.frame = CGRect(x: 0, y: 0, width: 343, height: 29)
-        
         navigationItem.titleView = navigationLabel
     }
     
@@ -40,13 +42,17 @@ class ProfileViewController: UIViewController, UITableViewDataSource, UITableVie
         tableView.separatorStyle = .none
     }
     
-    func addRecipes(_ recipe: Recipes) {
-        recipes.append(recipe)
-        tableView.reloadData()
+    func addRecipes(_ recipe: [TrendingResult]) {
+        recipes.append(contentsOf: recipe)
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
+    // MARK: - UITableViewDataSource
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return images.count
+        return recipes.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -54,14 +60,43 @@ class ProfileViewController: UIViewController, UITableViewDataSource, UITableVie
             return UITableViewCell()
         }
         
-        cell.transferRecipesImage().image = images[indexPath.row]
-//
-//        let recipe = recipes[indexPath.row]
-//        cell.configure(with: recipe) { [weak self] in
-//            self?.recipes.remove(at: indexPath.row)
-//            self?.tableView.deleteRows(at: [indexPath], with: .automatic)
-//        }
+        let recipe = recipes[indexPath.row]
+        let recipeId = recipe.id ?? 0
+        
+        if let count = ingredientsCountDict[recipeId] {
+            cell.configure(title: recipe.title ?? "", imageUrl: recipe.image, ingredientsNumber: count, cookingTime: recipe.maxReadyTime ?? 0)
+        } else {
+            cell.configure(title: recipe.title ?? "", imageUrl: recipe.image, ingredientsNumber: 0, cookingTime: recipe.maxReadyTime ?? 0)
+            
+            NetworkManager.shared.getRecipeIngredientsCount(recipeId: recipeId) { [weak self] result in
+                switch result {
+                case .success(let recipeInfo):
+                    let count = recipeInfo.extendedIngredients.count
+                    self?.ingredientsCountDict[recipeId] = count
+                    DispatchQueue.main.async {
+                        if let visibleCell = tableView.cellForRow(at: indexPath) as? TrendingNowCell {
+                            visibleCell.configure(title: recipe.title ?? "", imageUrl: recipe.image, ingredientsNumber: count, cookingTime: recipe.maxReadyTime ?? 0)
+                        }
+                    }
+                case .failure(let error):
+                    print("Ошибка получения ингредиентов для \(recipe.title ?? ""): \(error)")
+                }
+            }
+        }
         
         return cell
+    }
+    
+    // MARK: - Networking
+    
+    func getTrendingRecipes() {
+        NetworkManager.shared.getTrendingRecipes { [weak self] result in
+            switch result {
+            case .success(let recipes):
+                self?.addRecipes(recipes.results ?? [])
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
     }
 }
